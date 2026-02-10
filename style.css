@@ -1,0 +1,56 @@
+html, body {
+  margin: 0;
+  overflow: hidden;
+  background: #101a10;
+  font-family: "Segoe UI", sans-serif;
+  color: #fff;
+}
+
+canvas {
+  display: block;
+}
+
+.overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.75);
+  border: 2px solid #71d671;
+  padding: 20px;
+  width: min(90vw, 560px);
+  z-index: 20;
+}
+
+.hidden { display: none; }
+
+button {
+  padding: 10px 16px;
+  background: #2b7d2b;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+#hud {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 15;
+  background: rgba(0,0,0,0.45);
+  padding: 10px;
+  border: 1px solid #7bcf7b;
+  font-weight: 600;
+}
+
+#crosshair {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 15;
+  font-size: 24px;
+  color: #fff;
+  text-shadow: 0 0 5px #000;
+  pointer-events: none;
+}
