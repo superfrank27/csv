@@ -6,22 +6,19 @@ html, body {
   color: #fff;
 }
 
-canvas {
-  display: block;
-}
+canvas { display: block; cursor: crosshair; }
 
 .overlay {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.78);
   border: 2px solid #71d671;
   padding: 20px;
-  width: min(90vw, 560px);
+  width: min(92vw, 700px);
   z-index: 20;
 }
-
 .hidden { display: none; }
 
 button {
@@ -31,6 +28,8 @@ button {
   border: none;
   cursor: pointer;
 }
+
+.toggle { display: block; margin: 10px 0 16px; }
 
 #hud {
   position: absolute;
@@ -54,3 +53,23 @@ button {
   text-shadow: 0 0 5px #000;
   pointer-events: none;
 }
+
+#hintPanel {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 15;
+  background: rgba(0,0,0,.5);
+  border: 1px solid #71d671;
+  padding: 6px 10px;
+  font-size: 14px;
+}
+
+#shopList {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+}
+#shopList li { padding: 8px; border: 1px solid transparent; }
+#shopList li.active { border-color: #71d671; background: rgba(113,214,113,.2); }
