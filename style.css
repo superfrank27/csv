@@ -1,0 +1,46 @@
+html, body {
+  margin: 0;
+  overflow: hidden;
+  background: linear-gradient(#87ceeb, #5da8ff);
+  font-family: "Segoe UI", sans-serif;
+  color: #fff;
+}
+canvas { display: block; }
+
+.overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  width: min(92vw, 760px);
+  background: rgba(6, 18, 10, 0.78);
+  border: 2px solid #8ce18c;
+  box-shadow: 0 0 16px rgba(0,0,0,.4);
+  padding: 18px;
+}
+.hidden { display: none; }
+button {
+  background: linear-gradient(#4cb64c, #2d8d2d);
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+#hud {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  z-index: 15;
+  background: rgba(0, 0, 0, .48);
+  border: 1px solid #86df86;
+  padding: 10px;
+  font-weight: 600;
+  min-width: 200px;
+}
+
+#shopList { list-style: none; padding: 0; margin: 8px 0 0; }
+#shopList li { padding: 8px; border: 1px solid transparent; background: rgba(0,0,0,.18); margin-bottom: 4px; }
+#shopList li.active { border-color: #8ce18c; background: rgba(140,225,140,.22); }
