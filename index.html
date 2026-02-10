@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>像素村庄保卫战</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="menu" class="overlay">
+    <h1>像素村庄保卫战（第三人称）</h1>
+    <p>WASD 移动，空格跳跃，鼠标拖动旋转视角，左键攻击，B 打开商店。</p>
+    <p>目标：保护村民和村庄，抵挡古墓僵尸，维持玉米与生态循环。</p>
+    <button id="startBtn">开始游戏</button>
+  </div>
+
+  <div id="hud">
+    <div>生命：<span id="health">10</span>/10</div>
+    <div>金币：<span id="coins">0</span></div>
+    <div>盔甲：<span id="armor">0</span></div>
+    <div>武器：<span id="weapon">刀剑</span></div>
+    <div>弹药：<span id="ammo">∞</span></div>
+    <div>玉米：<span id="corn">0</span></div>
+    <div>村民：<span id="villagers">6</span></div>
+    <div>动物：<span id="animals">0</span></div>
+    <div>提示：<span id="hint">-</span></div>
+  </div>
+
+  <div id="shopPanel" class="overlay hidden">
+    <h2>村庄商店（↑↓选择，Enter购买，B退出）</h2>
+    <ul id="shopList"></ul>
+  </div>
+
+  <div id="gameOver" class="overlay hidden">
+    <h1>村庄沦陷</h1>
+    <p>最终金币：<span id="finalCoins">0</span></p>
+    <button id="restartBtn">重新开始</button>
+  </div>
+
+  <script type="module" src="game.js"></script>
+</body>
+</html>
