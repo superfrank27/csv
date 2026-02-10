@@ -1,75 +1,37 @@
 html, body {
   margin: 0;
   overflow: hidden;
-  background: #101a10;
+  background: #87b8ff;
   font-family: "Segoe UI", sans-serif;
   color: #fff;
 }
-
-canvas { display: block; cursor: crosshair; }
+canvas { display: block; }
 
 .overlay {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.78);
-  border: 2px solid #71d671;
-  padding: 20px;
-  width: min(92vw, 700px);
   z-index: 20;
+  width: min(92vw, 720px);
+  background: rgba(0, 0, 0, 0.75);
+  border: 2px solid #79d479;
+  padding: 18px;
 }
 .hidden { display: none; }
-
-button {
-  padding: 10px 16px;
-  background: #2b7d2b;
-  color: #fff;
-  border: none;
-  cursor: pointer;
-}
-
-.toggle { display: block; margin: 10px 0 16px; }
+button { background: #2a8f2a; color: #fff; border: none; padding: 10px 16px; cursor: pointer; }
 
 #hud {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  left: 12px;
+  top: 12px;
   z-index: 15;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0,0,0,.45);
+  border: 1px solid #71d671;
   padding: 10px;
-  border: 1px solid #7bcf7b;
   font-weight: 600;
 }
 
-#crosshair {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 15;
-  font-size: 24px;
-  color: #fff;
-  text-shadow: 0 0 5px #000;
-  pointer-events: none;
-}
-
-#hintPanel {
-  position: absolute;
-  left: 50%;
-  bottom: 18px;
-  transform: translateX(-50%);
-  z-index: 15;
-  background: rgba(0,0,0,.5);
-  border: 1px solid #71d671;
-  padding: 6px 10px;
-  font-size: 14px;
-}
-
-#shopList {
-  list-style: none;
-  padding: 0;
-  margin: 10px 0;
-}
+#shopList { list-style: none; padding: 0; margin: 0; }
 #shopList li { padding: 8px; border: 1px solid transparent; }
-#shopList li.active { border-color: #71d671; background: rgba(113,214,113,.2); }
+#shopList li.active { border-color: #79d479; background: rgba(121,212,121,.2); }
