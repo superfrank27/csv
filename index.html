@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>像素丛林僵尸射击</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="menu" class="overlay">
+    <h1>像素丛林：僵尸突袭</h1>
+    <p>WASD 移动，鼠标瞄准，左键射击，Shift 冲刺。</p>
+    <p>目标：在丛林里生存并赚金币，在中心超市升级武器与补给。</p>
+    <button id="startBtn">开始游戏（点击后锁定鼠标）</button>
+  </div>
+
+  <div id="hud">
+    <div>生命：<span id="health">10</span>/10</div>
+    <div>防御：<span id="armor">0</span></div>
+    <div>金币：<span id="coins">0</span></div>
+    <div>武器：<span id="weaponName">步枪</span></div>
+    <div>伤害：<span id="weaponDamage">1</span></div>
+    <div>命中提示：<span id="hitInfo">-</span></div>
+  </div>
+
+  <div id="crosshair">+</div>
+
+  <div id="shopPanel" class="overlay hidden">
+    <h2>丛林超市（按 E 购买）</h2>
+    <ul>
+      <li>1. 升级步枪（威力 +1）- 50 金币</li>
+      <li>2. 散弹枪（威力 +2）- 100 金币</li>
+      <li>3. 加特林（威力 +3）- 150 金币</li>
+      <li>4. 小药（+5 血）- 20 金币</li>
+      <li>5. 大药（+10 血）- 50 金币</li>
+      <li>6. 盔甲（防御 +1）- 500 金币</li>
+    </ul>
+    <p id="shopHint">走进超市区域后按数字键 1-6 购买。</p>
+  </div>
+
+  <div id="gameOver" class="overlay hidden">
+    <h1>你被僵尸淹没了...</h1>
+    <p>最终金币：<span id="finalCoins">0</span></p>
+    <button id="restartBtn">重新开始</button>
+  </div>
+
+  <script type="module" src="game.js"></script>
+</body>
+</html>
