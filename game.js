@@ -54,7 +54,7 @@ const ui = {
 
 const state = {
   started: false, dead: false, health: 10, coins: 0, armor: 0, corn: 30,
-  weapon: 'sword', ammo: { pistol: 0, rifle: 0 }, shopOpen: false, shopIndex: 0,
+  weapon: 'sword', ammo: { pistol: 0, rifle: 0, sniper: 0 }, shopOpen: false, shopIndex: 0,
   lastAttackAt: 0, minuteTick: 0, waveTimer: 0, waveCooldown: 8, waveSize: 4, waveNumber: 1
 };
 
@@ -108,17 +108,29 @@ function buildHumanoid(opts) {
   const g = new THREE.Group();
   const bodyMat = new THREE.MeshLambertMaterial({ map: px(opts.cloth1, opts.cloth2) });
   const skinMat = new THREE.MeshLambertMaterial({ map: px(opts.skin1, opts.skin2) });
+  const hairMat = new THREE.MeshLambertMaterial({ map: px(opts.hair1 || '#3f2d1f', opts.hair2 || '#2a1d12') });
   const body = new THREE.Mesh(new THREE.BoxGeometry(2, 3.2, 1.4), bodyMat);
   body.position.y = 1.7;
   const head = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.5, 1.5), skinMat);
   head.position.y = 4.2;
+  const hair = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.45, 1.6), hairMat);
+  hair.position.y = 4.95;
+  const eyeMat = new THREE.MeshLambertMaterial({ map: px('#ffffff', '#d7d7d7') });
+  const eyeL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.08), eyeMat);
+  const eyeR = eyeL.clone();
+  eyeL.position.set(-0.3, 4.2, 0.79);
+  eyeR.position.set(0.3, 4.2, 0.79);
   const armL = new THREE.Mesh(new THREE.BoxGeometry(0.6, 2.2, 0.6), bodyMat);
   const armR = armL.clone();
   armL.position.set(-1.35, 2.0, 0); armR.position.set(1.35, 2.0, 0);
+  const handL = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.35, 0.4), skinMat);
+  const handR = handL.clone();
+  handL.position.set(-1.35, 0.95, 0);
+  handR.position.set(1.35, 0.95, 0);
   const legL = new THREE.Mesh(new THREE.BoxGeometry(0.7, 2.1, 0.7), bodyMat);
   const legR = legL.clone();
   legL.position.set(-0.45, 0.8, 0); legR.position.set(0.45, 0.8, 0);
-  g.add(body, head, armL, armR, legL, legR);
+  g.add(body, head, hair, eyeL, eyeR, armL, armR, handL, handR, legL, legR);
   g.userData.parts = { armL, armR, legL, legR, head };
   return g;
 }
@@ -199,7 +211,7 @@ const shopSign = new THREE.Mesh(new THREE.BoxGeometry(6, 1.2, 0.8), new THREE.Me
 shopSign.position.set(0, 7.8, -21.1);
 village.add(shopSign);
 
-const vendor = buildHumanoid({ cloth1: '#355b9a', cloth2: '#476fb2', skin1: '#e0be95', skin2: '#cda178' });
+const vendor = buildHumanoid({ cloth1: '#355b9a', cloth2: '#476fb2', skin1: '#e0be95', skin2: '#cda178', hair1: '#2d2116', hair2: '#1d140b' });
 vendor.position.set(0, 0, -14);
 village.add(vendor);
 
@@ -229,21 +241,77 @@ addWall(0, 40, 88, 2.2);
 addWall(-44, 0, 2.2, 82);
 addWall(44, 0, 2.2, 82);
 
-const playerMesh = buildHumanoid({ cloth1: '#4062aa', cloth2: '#5175be', skin1: '#dcb991', skin2: '#cb9f73' });
+const walkSurfaces = [];
+function addWalkSurface(x, z, w, d, y) {
+  walkSurfaces.push({ x, z, w, d, y });
+}
+function getFloorY(x, z) {
+  let floor = 0;
+  for (const s of walkSurfaces) {
+    if (Math.abs(x - s.x) <= s.w / 2 && Math.abs(z - s.z) <= s.d / 2) {
+      floor = Math.max(floor, s.y);
+    }
+  }
+  return floor;
+}
+addWalkSurface(0, 0, 700, 700, 0);
+
+function addWatchTower(x, z, dir) {
+  const post = new THREE.BoxGeometry(1.2, 8, 1.2);
+  const p1 = new THREE.Mesh(post, M.wood); p1.position.set(x - 2, 4, z - 2);
+  const p2 = new THREE.Mesh(post, M.wood); p2.position.set(x + 2, 4, z - 2);
+  const p3 = new THREE.Mesh(post, M.wood); p3.position.set(x - 2, 4, z + 2);
+  const p4 = new THREE.Mesh(post, M.wood); p4.position.set(x + 2, 4, z + 2);
+  const platform = new THREE.Mesh(new THREE.BoxGeometry(7, 1, 7), M.stone);
+  platform.position.set(x, 8.5, z);
+  village.add(p1, p2, p3, p4, platform);
+
+  addCollider(x - 2, z - 2, 1.2, 1.2);
+  addCollider(x + 2, z - 2, 1.2, 1.2);
+  addCollider(x - 2, z + 2, 1.2, 1.2);
+  addCollider(x + 2, z + 2, 1.2, 1.2);
+  addWalkSurface(x, z, 6.8, 6.8, 8.5);
+
+  for (let i = 0; i < 8; i += 1) {
+    const h = 0.9 + i * 1.0;
+    const ox = dir.x * (7 - i * 0.8);
+    const oz = dir.z * (7 - i * 0.8);
+    const step = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.45, 2.1), M.wood);
+    step.position.set(x + ox, h, z + oz);
+    village.add(step);
+    addWalkSurface(step.position.x, step.position.z, 2.1, 2.1, h + 0.22);
+  }
+}
+
+addWatchTower(-52, -48, new THREE.Vector3(-1, 0, -1).normalize());
+addWatchTower(52, -48, new THREE.Vector3(1, 0, -1).normalize());
+addWatchTower(-52, 48, new THREE.Vector3(-1, 0, 1).normalize());
+addWatchTower(52, 48, new THREE.Vector3(1, 0, 1).normalize());
+
+const playerMesh = buildHumanoid({ cloth1: '#4062aa', cloth2: '#5175be', skin1: '#dcb991', skin2: '#cb9f73', hair1: '#3a2a20', hair2: '#281d15' });
 const armor = new THREE.Mesh(new THREE.BoxGeometry(2.4, 2.2, 1.8), new THREE.MeshLambertMaterial({ map: px('#9fb2c4', '#7d92a7') }));
 armor.position.y = 2.1; armor.visible = false;
 playerMesh.add(armor);
 const weapon = new THREE.Group(); weapon.position.set(1.3, 2.0, 0); playerMesh.add(weapon);
 scene.add(playerMesh);
+playerMesh.add(new THREE.AxesHelper(6));
 
 function drawWeapon() {
   weapon.clear();
   if (state.weapon === 'sword') {
     const h = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.6, 0.15), M.wood);
-    const b = new THREE.Mesh(new THREE.BoxGeometry(0.18, 2.5, 0.2), M.stone);
-    h.position.y = -0.2; b.position.y = 1.45; weapon.add(h, b);
-  } else if (state.weapon === 'pistol') weapon.add(new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.22, 0.22), M.stone));
-  else weapon.add(new THREE.Mesh(new THREE.BoxGeometry(1, 0.24, 0.24), M.stone));
+    const b = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.6, 0.24), M.stone);
+    h.position.y = -0.2; b.position.y = 2.0; weapon.add(h, b);
+  } else if (state.weapon === 'pistol') {
+    weapon.add(new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.22, 0.22), M.stone));
+  } else if (state.weapon === 'rifle') {
+    weapon.add(new THREE.Mesh(new THREE.BoxGeometry(1, 0.24, 0.24), M.stone));
+  } else {
+    const gun = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.26, 0.24), M.stone);
+    const scope = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.14, 0.14), M.stone);
+    scope.position.set(0.1, 0.22, 0);
+    weapon.add(gun, scope);
+  }
 }
 drawWeapon();
 
@@ -308,7 +376,7 @@ function updateHud() {
   ui.health.textContent = String(Math.max(0, Math.floor(state.health)));
   ui.coins.textContent = String(state.coins);
   ui.armor.textContent = String(state.armor);
-  ui.weapon.textContent = state.weapon === 'sword' ? '刀剑' : state.weapon === 'pistol' ? '手枪' : '步枪';
+  ui.weapon.textContent = state.weapon === 'sword' ? '刀剑' : state.weapon === 'pistol' ? '手枪' : state.weapon === 'rifle' ? '步枪' : '狙击枪';
   ui.ammo.textContent = state.weapon === 'sword' ? '∞' : String(state.ammo[state.weapon]);
   ui.corn.textContent = String(Math.floor(state.corn));
   ui.villagers.textContent = String(villagers.length);
@@ -328,7 +396,7 @@ function shootBullet() {
   const b = new THREE.Mesh(new THREE.SphereGeometry(0.14, 6, 6), new THREE.MeshBasicMaterial({ color: 0xffdf66 }));
   b.position.copy(playerMesh.position).add(new THREE.Vector3(0, 2.7, 0)).addScaledVector(dir, 1.5);
   scene.add(b);
-  bullets.push({ mesh: b, vel: dir.multiplyScalar(state.weapon === 'rifle' ? 140 : 105), life: 2 });
+  bullets.push({ mesh: b, vel: dir.multiplyScalar(state.weapon === 'sniper' ? 220 : state.weapon === 'rifle' ? 140 : 105), life: state.weapon === 'sniper' ? 2.8 : 2 });
   tone(290, 0.05, 'sawtooth', 0.07);
 }
 
@@ -341,9 +409,9 @@ function swordHitForwardOnly() {
   for (const z of [...zombies]) {
     const to = z.mesh.position.clone().sub(playerMesh.position).setY(0);
     const dist = to.length();
-    if (dist > 6.5) continue;
+    if (dist > 8.0) continue;
     const dot = to.normalize().dot(fwd);
-    if (dot > 0.45) {
+    if (dot > 0.62) {
       z.hp -= 1;
       if (z.hp <= 0) killZombie(z);
     }
@@ -353,12 +421,12 @@ function swordHitForwardOnly() {
 function attack() {
   if (!state.started || state.dead || state.shopOpen) return;
   const now = performance.now();
-  const cd = state.weapon === 'sword' ? 250 : state.weapon === 'pistol' ? 140 : 95;
+  const cd = state.weapon === 'sword' ? 210 : state.weapon === 'pistol' ? 140 : state.weapon === 'rifle' ? 95 : 520;
   if (now - state.lastAttackAt < cd) return;
   state.lastAttackAt = now;
 
   if (state.weapon === 'sword') return swordHitForwardOnly();
-  if (state.ammo[state.weapon] <= 0) {
+  if (state.weapon !== 'sword' && state.ammo[state.weapon] <= 0) {
     state.weapon = 'sword'; drawWeapon(); hint('弹药耗尽，切回刀剑');
     return;
   }
@@ -371,7 +439,8 @@ const SHOP_ITEMS = [
   { key: 'rifle', label: '步枪 +100发', cost: 120 },
   { key: 'smallMed', label: '小药 +5血', cost: 20 },
   { key: 'bigMed', label: '大药 +10血', cost: 50 },
-  { key: 'armor', label: '盔甲 +1防御', cost: 500 }
+  { key: 'armor', label: '盔甲 +1防御', cost: 500 },
+  { key: 'sniper', label: '狙击枪 +1000发', cost: 250 }
 ];
 
 function openShop() {
@@ -395,6 +464,7 @@ function buyCurrent() {
   if (state.coins < it.cost) return hint('金币不足');
   state.coins -= it.cost;
   if (it.key === 'pistol' || it.key === 'rifle') { state.weapon = it.key; state.ammo[it.key] += 100; drawWeapon(); }
+  if (it.key === 'sniper') { state.weapon = 'sniper'; state.ammo.sniper += 1000; drawWeapon(); }
   if (it.key === 'smallMed') state.health = Math.min(10, state.health + 5);
   if (it.key === 'bigMed') state.health = Math.min(10, state.health + 10);
   if (it.key === 'armor') state.armor += 1;
@@ -628,7 +698,7 @@ function updateBullets(dt) {
       if (info) {
         if (info.part === 'head') killZombie(info.z);
         else {
-          info.z.hp -= state.weapon === 'rifle' ? 2 : 1;
+          info.z.hp -= state.weapon === 'sniper' ? 5 : state.weapon === 'rifle' ? 2 : 1;
           if (info.z.hp <= 0) killZombie(info.z);
         }
       }
@@ -643,19 +713,20 @@ function updateBullets(dt) {
 
 function updatePlayer(dt) {
   const forward = new THREE.Vector3(Math.sin(player.yaw), 0, -Math.cos(player.yaw));
-  const right = new THREE.Vector3().crossVectors(UP, forward).normalize();
+  const right = new THREE.Vector3().crossVectors(forward, UP).normalize();
   const move = new THREE.Vector3();
   if (keys.w) move.add(forward);
   if (keys.s) move.sub(forward);
   if (keys.a) move.sub(right);
   if (keys.d) move.add(right);
   if (move.lengthSq() > 0) move.normalize();
-  player.pos.addScaledVector(move, (keys.shift ? 16 : 12) * dt);
+  player.pos.addScaledVector(move, (keys.shift ? 20 : 15) * dt);
 
-  if (keys.space && player.grounded) { player.velY = 10.2; player.grounded = false; }
-  player.velY -= 20 * dt;
+  if (keys.space && player.grounded) { player.velY = 11.4; player.grounded = false; }
+  player.velY -= 22 * dt;
   player.pos.y += player.velY * dt;
-  if (player.pos.y <= 3) { player.pos.y = 3; player.velY = 0; player.grounded = true; }
+  const floorY = getFloorY(player.pos.x, player.pos.z) + 3;
+  if (player.pos.y <= floorY) { player.pos.y = floorY; player.velY = 0; player.grounded = true; }
 
   player.pos.x = THREE.MathUtils.clamp(player.pos.x, -320, 320);
   player.pos.z = THREE.MathUtils.clamp(player.pos.z, -320, 320);
